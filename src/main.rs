@@ -20,7 +20,6 @@ struct Data {
     tg: Vec<Vec<f64>>,
     nips: usize,
     nops: usize,
-    rows: usize,
 }
 
 
@@ -38,32 +37,24 @@ impl Data {
 }
 
 fn build(path: &str) -> Result<Data, Error> {
-//    println!("[build] looking for data in '{}'", path);
     let f = File::open(path)?;
     let f = BufReader::new(f);
     let mut rows = 0; // TODO: needed?
-    let mut data = Data{
-        inp: Vec::new(), tg: Vec::new(), nips: NIPS, nops: NOPS, rows: 0
-    };
+    let mut data = Data{ inp: Vec::new(), tg: Vec::new(), nips: NIPS, nops: NOPS };
     for line in f.lines() {
-        rows += 1; // TODO: needed?
         let mut inps = Vec::with_capacity(NIPS);
         let mut tgs = Vec::with_capacity(NOPS);
         for (idx, value) in line.unwrap().split_whitespace().enumerate()
             .map(|(idx, str_val)| (idx, str_val.parse::<f64>().unwrap())) {
-//            println!("idx: {}, column: {:?}", idx, value);
             if idx < NIPS {
                 inps.push(value);
             } else {
                 tgs.push(value);
             }
         }
-//        println!("[build, row {}] pushed {} inps and {} tgs", rows, inps.len(), tgs.len());
         data.inp.push(inps);
         data.tg.push(tgs);
     }
-    data.rows = rows; // TODO: what do I need this for?
-//    println!("\n\nLine count: {}", rows);
     Ok(data)
 }
 
@@ -78,7 +69,6 @@ fn main() {
     };
     let mut tinn = Tinn::new(NIPS, NHID, NOPS);
     for _ in 0..100 {
-//    for _ in 0..100 {
         data.shuffle();
         let mut error = 0.0;
         for j in 0..data.inp.len() {
@@ -105,7 +95,7 @@ mod tests {
         for i in 0..100 {
             let n = rng.gen_range(0, 10);
             println!("n: {}", n);
-    }
+        }
     }
 
 }
