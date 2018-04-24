@@ -1,6 +1,61 @@
+extern crate failure;
 extern crate rand;
-use rand::{SmallRng, SeedableRng, thread_rng};
+
+//use rand::{SmallRng, SeedableRng, thread_rng};
+use rand::{Rng, SmallRng, SeedableRng, thread_rng};
+
 use rand::distributions::{IndependentSample, Range};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use failure::Error;
+
+pub const NIPS : usize = 256;
+pub const NOPS : usize = 10;
+pub const NHID : usize = 28;
+pub const ANNEAL : f64 = 0.99;
+
+#[derive(Debug)]
+pub struct Data {
+    pub inp: Vec<Vec<f64>>,
+    pub tg: Vec<Vec<f64>>,
+    nips: usize,
+    nops: usize,
+}
+
+
+impl Data {
+    pub fn shuffle(&mut self) {
+        let mut rng = SmallRng::from_rng(thread_rng()).unwrap();
+        let mut i = self.inp.len();
+        while i >= 2 {
+            i -= 1;
+            let idx = rng.gen_range(0,i+1);
+            self.inp.swap(i, idx);  // Swap input
+            self.tg.swap(i, idx);   // Swap output
+        }
+    }
+
+    pub fn build(path: &str) -> Result<Self, Error> {
+        let f = File::open(path)?;
+        let f = BufReader::new(f);
+        let mut data = Data{ inp: Vec::new(), tg: Vec::new(), nips: NIPS, nops: NOPS };
+        for line in f.lines() {
+            let mut inps = Vec::with_capacity(NIPS);
+            let mut tgs = Vec::with_capacity(NOPS);
+            for (idx, value) in line.unwrap().split_whitespace().enumerate()
+                .map(|(idx, str_val)| (idx, str_val.parse::<f64>().unwrap())) {
+                if idx < NIPS {
+                    inps.push(value);
+                } else {
+                    tgs.push(value);
+                }
+            }
+            data.inp.push(inps);
+            data.tg.push(tgs);
+        }
+        Ok(data)
+    }
+}
 
 pub struct Tinn {
     w: Vec<f64>, // All the weights.

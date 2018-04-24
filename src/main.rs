@@ -3,63 +3,12 @@ extern crate tinn;
 extern crate rand;
 
 use tinn::*;
-
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use failure::Error;
 use rand::{Rng, SmallRng, SeedableRng, thread_rng};
 
-const NIPS : usize = 256;
-const NOPS : usize = 10;
-const NHID : usize = 28;
-const ANNEAL : f64 = 0.99;
-
-#[derive(Debug)]
-struct Data {
-    inp: Vec<Vec<f64>>,
-    tg: Vec<Vec<f64>>,
-    nips: usize,
-    nops: usize,
-}
-
-
-impl Data {
-    pub fn shuffle(&mut self) {
-        let mut rng = SmallRng::from_rng(thread_rng()).unwrap();
-        let mut i = self.inp.len();
-        while i >= 2 {
-            i -= 1;
-            let idx = rng.gen_range(0,i+1);
-            self.inp.swap(i, idx);  // Swap input
-            self.tg.swap(i, idx);   // Swap output
-        }
-    }
-}
-
-fn build(path: &str) -> Result<Data, Error> {
-    let f = File::open(path)?;
-    let f = BufReader::new(f);
-    let mut data = Data{ inp: Vec::new(), tg: Vec::new(), nips: NIPS, nops: NOPS };
-    for line in f.lines() {
-        let mut inps = Vec::with_capacity(NIPS);
-        let mut tgs = Vec::with_capacity(NOPS);
-        for (idx, value) in line.unwrap().split_whitespace().enumerate()
-            .map(|(idx, str_val)| (idx, str_val.parse::<f64>().unwrap())) {
-            if idx < NIPS {
-                inps.push(value);
-            } else {
-                tgs.push(value);
-            }
-        }
-        data.inp.push(inps);
-        data.tg.push(tgs);
-    }
-    Ok(data)
-}
 
 fn main() {
     let mut rate = 1.0;
-    let mut data = match build("semeion.data") {
+    let mut data = match Data::build("semeion.data") {
         Ok(d) => d,
         Err(e) => {
             println!("{}", e);
