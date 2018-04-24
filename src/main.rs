@@ -72,7 +72,6 @@ fn main() {
         data.shuffle();
         let mut error = 0.0;
         for j in 0..data.inp.len() {
-//        for j in 0..200 {
             error += tinn.train(&data.inp[j], &data.tg[j], rate);
         };
         println!("error {:.12} :: learning rate {:.6}", error / data.inp.len() as f64, rate);
