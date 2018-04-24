@@ -1,0 +1,18 @@
+[package]
+name = "rustinn"
+version = "0.1.0"
+authors = ["David Palm <dvdplm@gmail.com>"]
+
+[lib]
+name = "tinn"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rustinn"
+path = "src/main.rs"
+
+[dependencies]
+failure = "*"
+failure_derive = "*"
+rand = {git="https://github.com/rust-lang-nursery/rand.git"}
+#rand = "0.4"
