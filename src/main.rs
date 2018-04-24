@@ -7,7 +7,7 @@ use tinn::*;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use failure::Error;
-use rand::Rng;
+use rand::{Rng, SmallRng, SeedableRng, thread_rng};
 
 const NIPS : usize = 256;
 const NOPS : usize = 10;
@@ -25,7 +25,7 @@ struct Data {
 
 impl Data {
     pub fn shuffle(&mut self) {
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_rng(thread_rng()).unwrap();
         let mut i = self.inp.len();
         while i >= 2 {
             i -= 1;
@@ -39,7 +39,6 @@ impl Data {
 fn build(path: &str) -> Result<Data, Error> {
     let f = File::open(path)?;
     let f = BufReader::new(f);
-    let mut rows = 0; // TODO: needed?
     let mut data = Data{ inp: Vec::new(), tg: Vec::new(), nips: NIPS, nops: NOPS };
     for line in f.lines() {
         let mut inps = Vec::with_capacity(NIPS);
@@ -68,6 +67,7 @@ fn main() {
         }
     };
     let mut tinn = Tinn::new(NIPS, NHID, NOPS);
+    let train_start = std::time::Instant::now();
     for _ in 0..100 {
         data.shuffle();
         let mut error = 0.0;
@@ -78,8 +78,8 @@ fn main() {
         println!("error {:.12} :: learning rate {:.6}", error / data.inp.len() as f64, rate);
         rate *= ANNEAL;
     };
-//    println!("Read data.inp[0] {:?}, data.tg: {}, data.rows: {}", data.inp[0], data.tg.len(), data.rows );
-    println!("Done training.");
+    let train_stop= std::time::Instant::now();
+    println!("Done training in {:?}", train_stop.duration_since(train_start));
     let prediction= tinn.predict(&data.inp[5]);
     println!("Expected:  {:?}", data.tg[5]);
     println!("Predicted: {:?}", prediction);
@@ -87,15 +87,6 @@ fn main() {
 
 
 mod tests {
-    use super::*;
-
     #[test]
-    fn blabla() {
-        let mut rng = rand::thread_rng();
-        for i in 0..100 {
-            let n = rng.gen_range(0, 10);
-            println!("n: {}", n);
-        }
-    }
-
+    fn blabla() {}
 }
