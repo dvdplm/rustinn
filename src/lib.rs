@@ -1,9 +1,7 @@
 extern crate failure;
 extern crate rand;
 
-//use rand::{SmallRng, SeedableRng, thread_rng};
 use rand::{Rng, SmallRng, SeedableRng, thread_rng};
-
 use rand::distributions::{IndependentSample, Range};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -16,7 +14,7 @@ pub const ANNEAL : f64 = 0.99;
 
 #[derive(Debug)]
 pub struct Data {
-    pub inp: Vec<Vec<f64>>,
+    pub inp: Vec<Vec<f64>>, // handwritten digit
     pub tg: Vec<Vec<f64>>,
     nips: usize,
     nops: usize,
@@ -30,7 +28,7 @@ impl Data {
         while i >= 2 {
             i -= 1;
             let idx = rng.gen_range(0,i+1);
-            self.inp.swap(i, idx);  // Swap input
+            self.inp.swap(i, idx);  // Swap input (handwritten digit)
             self.tg.swap(i, idx);   // Swap output
         }
     }

@@ -11,8 +11,20 @@ path = "src/lib.rs"
 name = "rustinn"
 path = "src/main.rs"
 
+[[bin]]
+name = "viz"
+path = "src/viz.rs"
+
 [dependencies]
 failure = "*"
 failure_derive = "*"
 rand = {git="https://github.com/rust-lang-nursery/rand.git"}
-#rand = "0.4"
+
+conrod = "*"
+image = "0.18"
+find_folder = "*"
+
+[features]
+default = ["winit", "glium"]
+winit = ["conrod/winit"]
+glium = ["conrod/glium"]
